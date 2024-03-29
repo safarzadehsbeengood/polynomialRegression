@@ -15,8 +15,8 @@ function setup() {
   d = tf.variable(tf.scalar(random(1)));
   clearBtn = createButton("clear");
   clearBtn.mousePressed(() => {
-    x_vals = [0.5];
-    y_vals = [0.5];
+    x_vals = [];
+    y_vals = [];
   });
   lrSlider = createSlider(0.001, 0.5, 0.05, 0.001)
   lr = lrSlider.value();
@@ -41,6 +41,18 @@ function draw() {
   if (lr != lrSlider.value()) {
     lr = lrSlider.value();
     opt = tf.train.adam(lr);
+  }
+  if (mouseIsPressed) {
+    if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+      x_vals.push(map(mouseX, 0, width, -1, 1));
+      y_vals.push(map(mouseY, 0, height, 1, -1));
+    }
+    for (let i = 0; i < x_vals.length; i++) {
+      stroke(255);
+      strokeWeight(6);
+      point(map(x_vals[i], -1, 1, 0, width), map(y_vals[i], -1, 1, height, 0));
+    }
+    return;
   }
   tf.tidy(() => {
     if (x_vals.length > 0) {
@@ -73,7 +85,7 @@ function draw() {
     }
     endShape();
   });
-  console.log(tf.memory().numTensors);
+  // console.log(tf.memory().numTensors);
   fill(255);
   noStroke();
   text("Loss", 30, 25);
@@ -85,13 +97,6 @@ function draw() {
   rect(0, 0, width, height);
   fill(100);
   point(mouseX, mouseY, 20);
-}
-
-function mouseDragged() {
-  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-    x_vals.push(map(mouseX, 0, width, -1, 1));
-    y_vals.push(map(mouseY, 0, height, 1, -1));
-  }
 }
 
 window.onresize = () => {
